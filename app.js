@@ -1,8 +1,12 @@
 const express = require('express');
-const mongoose = require('mongoose'); 
+const dotenv = require('dotenv');
+dotenv.config();
+const USER = process.env.USER;
+const PASSWORD = process.env.PASSWORD;
+const mongoose = require('mongoose');
 const userRoutes = require('./routes/user');
 
-mongoose.connect('mongodb+srv://admin:YOoGqHQOt178jgUf@cluster0.bm69yrb.mongodb.net/?retryWrites=true&w=majority',
+mongoose.connect('mongodb+srv://' + USER + ':' + PASSWORD + '@cluster0.kevmczz.mongodb.net/?retryWrites=true&w=majority',
     {
         useNewUrlParser: true,
         useUnifiedTopology: true
@@ -23,4 +27,4 @@ app.use((req, res, next) => {
 
 app.use('/api/auth', userRoutes);
 
-module.exports = app;
+module.exports = app; 

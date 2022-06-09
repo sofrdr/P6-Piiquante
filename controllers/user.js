@@ -1,9 +1,11 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
-
+const dotenv = require('dotenv');
+dotenv.config();
+const SALTROUNDS = process.env.SALTROUNDS;
 
 exports.signup = (req, res, next) => {
-    bcrypt.hash(req.body.password, 10)
+    bcrypt.hash(req.body.password, SALTROUNDS)
         .then(hash => {
             const user = new User({
                 email: req.body.email,
