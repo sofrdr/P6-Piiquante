@@ -14,6 +14,7 @@ const USER = process.env.USER;
 const PASSWORD = process.env.PASSWORD;
 const mongoose = require('mongoose');
 const userRoutes = require('./routes/user');
+const saucesRoutes = require('./routes/sauce');
 
 mongoose.connect('mongodb+srv://' + USER + ':' + PASSWORD + '@cluster0.kevmczz.mongodb.net/?retryWrites=true&w=majority',
     {
@@ -37,5 +38,6 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/auth', userRoutes);
+app.use('/api/sauces', saucesRoutes);
 
 module.exports = app; 
