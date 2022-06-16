@@ -3,9 +3,10 @@ const dotenv = require('dotenv');
 dotenv.config();
 const jwt = require('jsonwebtoken');
 
-const SALTROUNDS = process.env.SALTROUNDS;
+
 const MIN = process.env.MIN;
 const MAX = process.env.MAX;
+const SALTROUNDS = process.env.SALTROUNDS;
 const SECRET_TOKEN = process.env.SECRET_TOKEN;
 
 const bcrypt = require('bcrypt');
