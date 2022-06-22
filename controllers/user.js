@@ -13,6 +13,7 @@ const bcrypt = require('bcrypt');
 const emailValidator = require('email-validator');
 
 
+
 const passwordValidator = require('password-validator');
 const passwordSchema = new passwordValidator();
 passwordSchema
@@ -72,7 +73,7 @@ exports.login = (req, res, next) => {
                 token: jwt.sign(
                     {userId: user._id},
                     SECRET_TOKEN,
-                    {expiresIn: '24h'}
+                    {expiresIn: '1h'}
                 )
             });
         })

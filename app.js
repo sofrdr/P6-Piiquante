@@ -1,12 +1,6 @@
 const express = require('express');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const limiter = rateLimit({
-    windowMs: 5 * 60 * 1000,
-    max: 3,
-    standardHeaders: true, 
-    legacyHeaders: false,
-})
+
 
 const dotenv = require('dotenv');
 dotenv.config();
@@ -27,7 +21,11 @@ mongoose.connect('mongodb+srv://' + USER + ':' + PASSWORD + '@cluster0.kevmczz.m
 
 const app = express();
 
-//app.use(helmet());
+app.use(
+    helmet({
+        crossOriginResourcePolicy: { policy: "cross-origin" },
+    })
+  );
 
 app.use(express.json());
 
