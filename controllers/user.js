@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 const jwt = require('jsonwebtoken');
 
+
 // Variables d'environnement
 const MIN = process.env.MIN;
 const MAX = process.env.MAX;
