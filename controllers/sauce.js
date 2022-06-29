@@ -87,27 +87,37 @@ exports.likeSauce = function (req, res, next) {
         .then((sauce) => {
             switch (like) {
                 case 1:
-                    Sauce.updateOne(
-                        { _id: sauceId },
-                        {
-                            $inc: { likes: +1 },
-                            $push: { usersLiked: userId }
-                        }
-                    )
-                        .then(() => res.status(200).json({ message: "Like pris en compte" }))
-                        .catch((error) => res.status(400).json({ error }));
+                    if (sauce.usersDisliked.includes(userId)) {
+                        res.status(401).json({ message: "Like impossible, merci d'enlever le dislike" })
+                    } else {
+                        Sauce.updateOne(
+                            { _id: sauceId },
+                            {
+                                $inc: { likes: +1 },
+                                $push: { usersLiked: userId }
+                            }
+                        )
+                            .then(() => res.status(200).json({ message: "Like pris en compte" }))
+                            .catch((error) => res.status(400).json({ error }));
+                    }
+
                     break;
                 case -1:
-                    Sauce.updateOne(
-                        { _id: sauceId },
-                        {
-                            $inc: { dislikes: +1 },
-                            $push: { usersDisliked: userId }
-                        }
-                    )
-                        .then(() =>
-                            res.status(200).json({ message: "Dislike pris en compte" }))
-                        .catch((error) => res.status(400).json({ error }));
+                    if (sauce.usersLiked.includes(userId)) {
+                        res.status(401).json({ message: "Dislike impossible, merci d'enlever le like" })
+                    } else {
+                        Sauce.updateOne(
+                            { _id: sauceId },
+                            {
+                                $inc: { dislikes: +1 },
+                                $push: { usersDisliked: userId }
+                            }
+                        )
+                            .then(() =>
+                                res.status(200).json({ message: "Dislike pris en compte" }))
+                            .catch((error) => res.status(400).json({ error }));
+                    }
+
                     break;
                 case 0:
                     if (sauce.usersLiked.includes(userId)) {
