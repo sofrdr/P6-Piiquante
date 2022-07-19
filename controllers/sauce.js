@@ -32,6 +32,7 @@ exports.modifySauce = (req, res, next) => {
     let sauceObject;
     // Si la requête comporte une image on ajoute la clé imageUrl à sauceObject
     if (req.file) {
+        
         sauceObject = {
             ...JSON.parse(req.body.sauce),
             imageUrl: req.protocol + '://' + req.get('host') + '/images/' + req.file.filename
@@ -44,12 +45,16 @@ exports.modifySauce = (req, res, next) => {
             if (sauce.userId !== req.auth.userId) {
                 res.status(403).json({ message: "Modification non autorisée" })
             } else {
-                const filename = sauce.imageUrl.split('/images/')[1];
-                fs.unlink('images/' + filename, () => {
-                    Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
+                if(req.file){
+                   const filename = sauce.imageUrl.split('/images/')[1];
+                fs.unlink('images/' + filename, (err) => {
+                   if (err) throw err;
+                }) 
+                }
+                
+                Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
                         .then(() => res.status(200).json({ message: "Sauce modifiée" }))
                         .catch(error => res.status(400).json({ error }));
-                })
             }
 
         })
@@ -91,8 +96,8 @@ exports.likeSauce = function (req, res, next) {
                 //L'utilisateur veut ajouter un like
                 case 1:
                     //Si l'utilisateur a déjà un dislike sur cette sauce on revoie une erreur
-                    if (sauce.usersDisliked.includes(userId)) {
-                        res.status(401).json({ message: "Like impossible, merci d'enlever le dislike" })
+                    if (sauce.usersDisliked.includes(userId) || sauce.usersLiked.includes(userId)) {
+                        res.status(401).json({ message: "Like impossible" })
                     } else {
                         //sinon on incrémente le nombre de like et son userId est ajouté au tableau usersLiked
                         Sauce.updateOne(
@@ -110,8 +115,8 @@ exports.likeSauce = function (req, res, next) {
                 // L'utilisateur veut ajouter un dislike    
                 case -1:
                     //Si l'utilisateur a déjà un like sur cette sauce on renvoie une erreur
-                    if (sauce.usersLiked.includes(userId)) {
-                        res.status(401).json({ message: "Dislike impossible, merci d'enlever le like" })
+                    if (sauce.usersDisliked.includes(userId) || sauce.usersLiked.includes(userId)) {
+                        res.status(401).json({ message: "Dislike impossible" })
                     } else {
                         // sinon on incrémente le nombre de dislike de 1 et son userId est ajouté au tableau usersDisliked
                         Sauce.updateOne(
