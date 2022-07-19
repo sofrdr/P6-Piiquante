@@ -7,7 +7,6 @@ const jwt = require('jsonwebtoken');
 // Variables d'environnement
 const MIN = process.env.MIN;
 const MAX = process.env.MAX;
-const SALTROUNDS = process.env.SALTROUNDS;
 const SECRET_TOKEN = process.env.SECRET_TOKEN;
 
 const bcrypt = require('bcrypt');
@@ -29,11 +28,13 @@ passwordSchema
 
 
 
+
 // Fonction pour enregistrer un nouvel utilisateur
 exports.signup = (req, res, next) => {
     // Si le mot de passe ne respecte pas le schéma défini
-    if (passwordSchema.validate(req.body.password) == false) {
-        return res.status(401).send(passwordSchema.validate(req.body.password, { details: true }))
+    const {password} = req.body;
+    if (passwordSchema.validate(password) == false) {
+        return res.status(401).send(passwordSchema.validate(password, { details: true }))
     
     // Si l'adresse mail n'est pas valide
     } else if (emailValidator.validate(req.body.email) == false) {
@@ -69,29 +70,31 @@ exports.signup = (req, res, next) => {
 // Fonction pour se connecter avec un compte existant
 exports.login = (req, res, next) => {
     // On cherche l'utilisateur dans la base de données avec son adresse email
-    User.findOne({email: req.body.email})
-    .then(user => {
-        if(!user){
-            return res.status(401).json({error : "Utilisateur non trouvé"});
-        }
-        // si l'adresse mail est trouvée alors on compare le mot de passe saisi avec le mot de passe associé à l'email
-        bcrypt.compare(req.body.password, user.password)
-        .then(valid => {
-            if(!valid){
-                return res.status(401).json({error : "Mot de passe incorrect"});
+    User.findOne({ email: req.body.email })
+        .then(user => {
+            if (!user) {
+                return res.status(401).json({ error: "Utilisateur non trouvé" });
             }
-            // si le mot de passe est valide alors on crée un userId et un token pour la session
-            return res.status(200).json({
-                userId: user._id,
-                // infos enregistrées dans le payload du token
-                token: jwt.sign(
-                    {userId: user._id},
-                    SECRET_TOKEN,
-                    {expiresIn: '1h'}
-                )
-            });
+            // si l'adresse mail est trouvée alors on compare le mot de passe saisi avec le mot de passe associé à l'email
+            bcrypt.compare(req.body.password, user.password)
+                .then(valid => {
+                    if (!valid) {
+                        return res.status(401).json({ error: "Mot de passe incorrect" });
+                    }
+                    // si le mot de passe est valide alors on crée un userId et un token pour la session
+                    return res.status(200).json({
+                        userId: user._id,
+                        // infos enregistrées dans le payload du token
+                        token: jwt.sign(
+                            { userId: user._id },
+                            SECRET_TOKEN,
+                            { expiresIn: '1h' }
+                        )
+                    });
+                })
+                .catch(error => res.status(500).json({ error }))
         })
-        .catch(error => res.status(500).json({error}))
-    })
-    .catch(error => res.status(500).json({error}))
+        .catch(error => res.status(500).json({ error }))
 };
+
+
